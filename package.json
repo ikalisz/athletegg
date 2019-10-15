@@ -11,10 +11,12 @@
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "feather-icons": "^4.24.1",
+    "material-ui": "^0.20.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-feather": "^2.0.3",
     "react-scripts": "3.2.0",
+    "react-window": "^1.8.5",
     "styled-components": "^4.4.0"
   },
   "scripts": {

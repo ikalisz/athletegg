@@ -3,6 +3,7 @@ import axios from 'axios'
 import styled from 'styled-components'
 import * as Icon from 'react-feather'
 import './App.css';
+import { Input, Button, Avatar } from '@material-ui/core'
 
 function App() {
   // I will be using React hooks for all my state.
@@ -10,15 +11,19 @@ function App() {
   const [search, setSearch] = useState(false)
   const [gamerResults, setResults] = useState([])
   const [cache, setCache] = useState(false)
+  const [tournies, setTournies] = useState([])
   function toggleSearch() {
     console.log('Changing search')
     let newSearch = !search
     setSearch(newSearch)
   }
-  function getGamer() {
+  function getGamer(e) {
+    e.preventDefault()
     // when invoked, will send a request to get data on the gamer tag given.
     axios.get(`/getGamer?gamerTag=${gamerTag}`).then((res) => {
       //after recieving response, will set player data to display
+      setResults(res.data.data)
+      //check here if the response was cached and then change cache to true if it is.
       console.log(res.data)
     })
   }
@@ -32,9 +37,15 @@ function App() {
       {
         search ? 
         <SearchHolder>
-          <IconSpan onClick={() => toggleSearch()} title='Click this to close the search'>
-            <Icon.XCircle  />
-          </IconSpan>
+          <RowHolder style={{ flexDirection: 'row-reverse', height: '30px', width: '97%'}}>
+            <IconSpan onClick={() => toggleSearch()} title='Click this to close the search'>
+              <Icon.XCircle  />
+            </IconSpan>
+          </RowHolder>
+          <GamerSearch onSubmit={getGamer}>
+            <Input variant='outlined' value={gamerTag} onChange={e => setGamer(e.target.value)} />
+            <Button variant='outlined'>Search</Button>
+          </GamerSearch>
         </SearchHolder>
         :
         null
@@ -54,13 +65,18 @@ function App() {
         </IconSpan>
       </RowHolder>
       <PlayerInfo>
-        Player Info
+        <PlayerAvatar>
+          <Avatar src="https://res.cloudinary.com/agg/image/upload/v1570370593/misc/tbh9/ultimate/nairo.jpg" style={{transform: 'scale(4.9)'}} />
+        </PlayerAvatar>
+        <InfoTextHolder>
+
+        </InfoTextHolder>
       </PlayerInfo>
       <AboutHolder>
         About
       </AboutHolder>
       <TourneyHolder>
-        Tournies
+        
       </TourneyHolder>
     </MainContainer>
   )
@@ -96,7 +112,6 @@ const RowHolder = styled.div`
 const PlayerInfo = styled(RowHolder)`
   height: 28%;
   width: 90%;
-  background: white;
 `
 
 //This will also become a component I will adapt styles off of.
@@ -121,6 +136,12 @@ const TourneyHolder = styled(ColumnHolder)`
   background: white;
 `
 
+const InfoTextHolder = styled(TourneyHolder)`
+  height: 100%;
+  width: 50%;
+  background: black;
+`
+
 const SearchHolder = styled(ColumnHolder)`
   height: 95%;
   width: 92%;
@@ -134,7 +155,32 @@ const IconSpan = styled.span`
   width: 24px;
 `
 
+const PlayerAvatar = styled.div`
+  height: 100%;
+  width: 43%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow:hidden;
+`
+
+const TourneyRow = styled(RowHolder)`
+  height: 8%;
+  width: 90%;
+`
+
 const Text = styled.p`
   font-family: ${props => props.header ? 'Comfortaa' : 'Roboto' };
   color: white;
+`
+
+const GamerSearch = styled.form`
+  height: 30px;
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+`
+
+const SearchResults = styled(ColumnHolder)`
+  height: 
 `

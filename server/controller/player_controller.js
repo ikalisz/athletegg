@@ -1,6 +1,8 @@
 const axios = require('axios')
 const CircularJSON = require('circular-json');
 
+let cache = {}
+
 module.exports = {
     getPlayer: async(req, res) => {
         // const playerData = await axios.get('https://api-v1.athletes.gg/users?gamerTag=nairo')
@@ -25,6 +27,11 @@ module.exports = {
         let searchGamer = gamerTag.replace(gamerTag.charAt(0), gamerTag.charAt(0).toUpperCase())
         console.log(searchGamer)
         console.log(req.query)
+        
+        if (cache.find()) {
+
+        }
+
         axios.get(`https://api-v1.athletes.gg/users?gamerTag=${searchGamer}`).then((response)=>{
             let json = CircularJSON.stringify(response);
             res.send(json);
