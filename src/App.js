@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import axios from 'axios'
 import styled from 'styled-components'
 import * as Icon from 'react-feather'
-import './App.css';
-import { Input, Button, Avatar } from '@material-ui/core'
+import './App.css'
+import { Input, Button, Avatar, ListItem, ListItemAvatar, ListItemText } from '@material-ui/core'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 function App() {
   // I will be using React hooks for all my state.
@@ -11,7 +12,9 @@ function App() {
   const [search, setSearch] = useState(false)
   const [gamerResults, setResults] = useState([])
   const [cache, setCache] = useState(false)
+  const [selectedPlayer, setPlayer] = useState({aggScore: 0})
   const [tournies, setTournies] = useState([])
+  console.log(gamerResults)
   function toggleSearch() {
     console.log('Changing search')
     let newSearch = !search
@@ -22,9 +25,10 @@ function App() {
     // when invoked, will send a request to get data on the gamer tag given.
     axios.get(`/getGamer?gamerTag=${gamerTag}`).then((res) => {
       //after recieving response, will set player data to display
-      setResults(res.data.data)
+      setResults(res.data.data.data)
       //check here if the response was cached and then change cache to true if it is.
       console.log(res.data)
+      console.log(gamerResults)
     })
   }
   function getAxios() {
@@ -32,6 +36,16 @@ function App() {
       console.log(res.data.data)
     })
   }
+  const searchList = gamerResults.map((ele, i) => {
+    return (
+      <ListItem key={i} onClick={e => setPlayer(gamerResults[i])}>
+          <ListItemAvatar>
+            <Avatar src={`${ele.avatar}`} />
+          </ListItemAvatar>
+          <ListItemText primary={`${ele.gamerTag}`} secondary={`${ele.name}`} />
+      </ListItem>
+    )
+  })
   return (
     <MainContainer>
       {
@@ -44,8 +58,31 @@ function App() {
           </RowHolder>
           <GamerSearch onSubmit={getGamer}>
             <Input variant='outlined' value={gamerTag} onChange={e => setGamer(e.target.value)} />
-            <Button variant='outlined'>Search</Button>
+            <Button variant='outlined' type='submit'>Search</Button>
           </GamerSearch>
+          {
+            gamerResults.length > 0 ?
+            <SearchResults>
+              <InfiniteScroll
+                  dataLength={searchList.length} //This is important field to render the next data
+                  hasMore={false}
+                  loader={<h4>Loading...</h4>}
+                  endMessage={
+                  <p style={{textAlign: 'center'}}>
+                    <b>Yay! You have seen it all</b>
+                  </p>
+                  }
+              >
+                {searchList}
+              </InfiniteScroll>
+            </SearchResults>
+            :
+            <SearchResults>
+              <BlackText>
+                Please search a player!
+              </BlackText>
+            </SearchResults>
+          }
         </SearchHolder>
         :
         null
@@ -66,15 +103,28 @@ function App() {
       </RowHolder>
       <PlayerInfo>
         <PlayerAvatar>
-          <Avatar src="https://res.cloudinary.com/agg/image/upload/v1570370593/misc/tbh9/ultimate/nairo.jpg" style={{transform: 'scale(4.9)'}} />
+          <Avatar src={`${selectedPlayer.avatar}`} style={{transform: 'scale(4.9)'}} />
         </PlayerAvatar>
         <InfoTextHolder>
-
+          <BlackText style={{'font-size': '12px'}}>
+            A.GG score: {selectedPlayer.aggScore} pts
+          </BlackText>
+          <BlackText style={{'font-size': '20px'}}>
+            {selectedPlayer.gamerTag}
+          </BlackText>
+          <BlackText>
+            {selectedPlayer.name}
+          </BlackText>
         </InfoTextHolder>
       </PlayerInfo>
-      <AboutHolder>
-        About
-      </AboutHolder>
+      {
+        selectedPlayer.cover ?
+          <AboutHolder style={{'backgroundImage': `url(${selectedPlayer.cover.image})`}}>
+            
+          </AboutHolder>
+          :
+          null
+      }
       <TourneyHolder>
         
       </TourneyHolder>
@@ -126,7 +176,8 @@ const AboutHolder = styled(ColumnHolder)`
   height: 10%;
   width: 90%;
   justify-content: center;
-  background: white;
+  background-size: cover;
+  background-position: center;  
 `
 
 const TourneyHolder = styled(ColumnHolder)`
@@ -139,7 +190,6 @@ const TourneyHolder = styled(ColumnHolder)`
 const InfoTextHolder = styled(TourneyHolder)`
   height: 100%;
   width: 50%;
-  background: black;
 `
 
 const SearchHolder = styled(ColumnHolder)`
@@ -148,6 +198,7 @@ const SearchHolder = styled(ColumnHolder)`
   border-radius: 10px;
   background: white;
   position: absolute;
+  z-index: 2;
 `
 
 const IconSpan = styled.span`
@@ -174,6 +225,10 @@ const Text = styled.p`
   color: white;
 `
 
+const BlackText = styled(Text)`
+  color: black;
+`
+
 const GamerSearch = styled.form`
   height: 30px;
   width: 90%;
@@ -181,6 +236,10 @@ const GamerSearch = styled.form`
   justify-content: space-between;
 `
 
-const SearchResults = styled(ColumnHolder)`
-  height: 
+const SearchResults = styled(RowHolder)`
+  height: 70%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  overflow: scroll;
 `
