@@ -10,15 +10,17 @@ function App() {
   // I will be using React hooks for all my state.
   const [gamerTag, setGamer] = useState('')
   const [search, setSearch] = useState(false)
+  const [about, setAbout] = useState(false)
   const [gamerResults, setResults] = useState([])
-  const [cache, setCache] = useState(false)
-  const [selectedPlayer, setPlayer] = useState({aggScore: 0})
-  const [tournies, setTournies] = useState([])
-  console.log(gamerResults)
+  const [selectedPlayer, setPlayer] = useState({aggScore: 0, tournies: [], about: 'Nothing here!'})
+  // Making a toggle for the search and about components, that way they can toggle on when you click an icon
   function toggleSearch() {
-    console.log('Changing search')
     let newSearch = !search
     setSearch(newSearch)
+  }
+  function toggleAbout() {
+    let newAbout = !about
+    setAbout(newAbout)
   }
   function getGamer(e) {
     e.preventDefault()
@@ -26,19 +28,24 @@ function App() {
     axios.get(`/getGamer?gamerTag=${gamerTag}`).then((res) => {
       //after recieving response, will set player data to display
       setResults(res.data.data.data)
-      //check here if the response was cached and then change cache to true if it is.
-      console.log(res.data)
-      console.log(gamerResults)
+      //Check for a cached player here
     })
   }
-  function getAxios() {
-    axios.get('/getPlayer').then((res) => {
-      console.log(res.data.data)
+  function getPlacings(player) {
+    // This will toggle search off and then get the placings of a player, combining both info into one object.
+    toggleSearch()
+    axios.get(`/getPlacing?id=${player.id}`).then(res => {
+      setPlayer({
+        ...player,
+        tournies: res.data.data.data
+      })
     })
+
   }
+  // This is to create a list of the players that come from the search.
   const searchList = gamerResults.map((ele, i) => {
     return (
-      <ListItem key={i} onClick={e => setPlayer(gamerResults[i])}>
+      <ListItem key={i} onClick={e => getPlacings(gamerResults[i])}>
           <ListItemAvatar>
             <Avatar src={`${ele.avatar}`} />
           </ListItemAvatar>
@@ -46,8 +53,21 @@ function App() {
       </ListItem>
     )
   })
+  // This creates a displayable list of the placings for a player.
+  const tourneyDisplay = selectedPlayer.tournies.map((ele, i) => {
+    console.log(ele.place)
+    return (
+      <TourneyRow key={i}>
+        <Avatar src={ele.event.avatar} />
+        <BlackText style={{fontSize: '12px', width: '70%'}}>
+          {ele.event.name} {ele.place && ele.place > 0 ? `placed #${ele.place}` : 'No data for placement'}
+        </BlackText>
+      </TourneyRow>
+    )
+  })
   return (
     <MainContainer>
+      {/* This will only show the search component if search is true */}
       {
         search ? 
         <SearchHolder>
@@ -87,34 +107,54 @@ function App() {
         :
         null
       }
+      { about ?
+      //Shows the about information of a player.
+      <AboutWindowHolder onClick={toggleAbout}>
+        <AboutWindowBackground/>
+        <AboutWindow onClick={e => e.stopPropagation()}>
+          <BlackText>
+            {selectedPlayer.about}
+          </BlackText>
+        </AboutWindow>
+      </AboutWindowHolder>
+      :
+      null
+      }
       <RowHolder>
         {
-          cache ?
+          //Shows if a player is cached
+          selectedPlayer.cached ?
           <IconSpan title='This search was retrieved from the cache'>
             <Icon.AlertCircle title='This search was retrieved from the cache' color='white' />
           </IconSpan>
           :
           <IconSpan></IconSpan>
         }
+        {/* Header for the app */}
         <Text header={true}>Athlete.gg</Text>
         <IconSpan onClick={() => toggleSearch()} title='Click this to search a player'>
           <Icon.Search color='white' />
         </IconSpan>
       </RowHolder>
       <PlayerInfo>
+        {/* Player Picture */}
         <PlayerAvatar>
           <Avatar src={`${selectedPlayer.avatar}`} style={{transform: 'scale(4.9)'}} />
         </PlayerAvatar>
+        {/* One block containing the player info */}
         <InfoTextHolder>
-          <BlackText style={{'font-size': '12px'}}>
+          <BlackText style={{'fontSize': '12px'}}>
             A.GG score: {selectedPlayer.aggScore} pts
           </BlackText>
-          <BlackText style={{'font-size': '20px'}}>
+          <BlackText style={{'fontSize': '20px'}}>
             {selectedPlayer.gamerTag}
           </BlackText>
           <BlackText>
             {selectedPlayer.name}
           </BlackText>
+          <AboutMeHover onClick={toggleAbout}>
+            About me!
+          </AboutMeHover>
         </InfoTextHolder>
       </PlayerInfo>
       {
@@ -126,7 +166,7 @@ function App() {
           null
       }
       <TourneyHolder>
-        
+        {tourneyDisplay}
       </TourneyHolder>
     </MainContainer>
   )
@@ -242,4 +282,44 @@ const SearchResults = styled(RowHolder)`
   justify-content: center;
   align-items: center;
   overflow: scroll;
+`
+
+//About Components
+
+const AboutWindow = styled(SearchResults)`
+  min-height: 1%;
+  max-height: 50%;
+  width: 60%;
+  padding: 0 10px;
+  background: white;
+  position: absolute;
+  z-index: 20;
+  border-radius: 5px;
+  overflow: scroll;
+  opacity: 1.3;
+`
+
+const AboutWindowBackground = styled.div`
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background: #333333;
+  opacity: 0.7;
+`
+
+const AboutWindowHolder = styled.div`
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const AboutMeHover = styled(BlackText)`
+  text-decoration: underline;
+  :hover {
+    cursor: pointer;
+  }
 `
