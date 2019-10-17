@@ -35,8 +35,8 @@ module.exports = {
             }
             res.status(200).send(cached)
         } else {
-            //The data I was getting back was circular structure data? I have never worked with it before and the object was huge so
-            //I could not figure out how to cache the data as It was a different structure when I got a response on the back end compared to the front end.
+            //The data I was getting back was circular structure data? I have never worked with a circular structure object before and the object was huge so
+            //I could not figure out how to cache the data as It was a different structure when I got a response on the back end compared to the front end. I ended up using a package I found to convert it to regular json.
             axios.get(`https://api-v1.athletes.gg/users?gamerTag=${searchGamer}`).then((response)=>{
                 let json = CircularJSON.stringify(response);
                 res.send(json);

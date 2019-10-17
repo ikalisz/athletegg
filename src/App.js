@@ -218,6 +218,9 @@ const AboutHolder = styled(ColumnHolder)`
   justify-content: center;
   background-size: cover;
   background-position: center;  
+  @media (min-width: 1000px) {
+    height: 15%;
+  }
 `
 
 const TourneyHolder = styled(ColumnHolder)`

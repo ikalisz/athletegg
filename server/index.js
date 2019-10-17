@@ -12,6 +12,9 @@ app.listen(SERVER_PORT, () => {
 
 //End points
 app.get('/getPlayer', player_controller.getPlayer)
+
 app.get('/getGamer', player_controller.getOnePlayer)
+
 app.get('/getPlacing', player_controller.getPlacings)
+
 app.post('/cachePlayer', player_controller.cachePlayer)
