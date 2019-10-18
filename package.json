@@ -1,7 +1,6 @@
 {
   "name": "athletegg",
   "version": "0.1.0",
-  "proxy": "https://nameless-journey-12242.herokuapp.com/",
   "main": "server/index.js",
   "private": true,
   "dependencies": {

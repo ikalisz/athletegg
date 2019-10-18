@@ -25,7 +25,7 @@ function App() {
   function getGamer(e) {
     e.preventDefault()
     // when invoked, will send a request to get data on the gamer tag given.
-    axios.get(`/getGamer?gamerTag=${gamerTag}`).then((res) => {
+    axios.get(`https://nameless-journey-12242.herokuapp.com/getGamer?gamerTag=${gamerTag}`).then((res) => {
       //after recieving response, will set player data to display
       setResults(res.data.data.data)
       //Check for a cached player here
@@ -34,7 +34,7 @@ function App() {
   function getPlacings(player) {
     // This will toggle search off and then get the placings of a player, combining both info into one object.
     toggleSearch()
-    axios.get(`/getPlacing?id=${player.id}`).then(res => {
+    axios.get(`https://nameless-journey-12242.herokuapp.com/getPlacing?id=${player.id}`).then(res => {
       setPlayer({
         ...player,
         tournies: res.data.data.data
